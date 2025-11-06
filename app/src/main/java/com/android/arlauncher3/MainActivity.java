@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.arlauncher3.adapter.ARRecyclerAdapter2;
+import com.android.arlauncher3.adapter.ThreeItemsDecoration;
 import com.android.arlauncher3.bean.ItemAppEntity;
 import com.android.arlauncher3.model.StatusType;
 import com.android.arlauncher3.presenter.StatusManager;
@@ -43,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mIvWifi;
     private ImageView mIvNetwork;
     private ImageView mIvBattery;
+
+    private boolean mInScroll = false;
+
+    private boolean mViewInit = false;
 
 
     @Override
@@ -80,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         rv.post(new Runnable() {
             @Override
             public void run() {
+                rv.addItemDecoration(new ThreeItemsDecoration(MainActivity.this));
+
                 int centerPosition = findCenterPosition(layoutManager);
                 if (centerPosition != RecyclerView.NO_POSITION) {
                     adapter2.setCurrentPosition(centerPosition);
@@ -91,12 +98,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    // 滑动开始时重置 mInScroll
+                    mInScroll = false;
+                    Log.d(TAG, "onScrollStateChanged: SCROLL_STATE_DRAGGING");
+                } else if (newState == RecyclerView.SCROLL_STATE_IDLE && !mInScroll) {
+                    int currentPosition = adapter2.getCurrentPosition();
+                    int newPosition = scrollDirection == DIR_RIGHT ? currentPosition + 1 : currentPosition - 1;
+                    Log.d(TAG, "onScrollStateChanged: currentPosition " + currentPosition);
+                    Log.d(TAG, "onScrollStateChanged: newPosition " + newPosition);
                     int centerPosition = findCenterPosition(layoutManager);
-                    if (centerPosition != RecyclerView.NO_POSITION) {
-                        Log.d(TAG, "onScrollStateChanged: centerPosition " + centerPosition);
-                        adapter2.setCurrentPosition(centerPosition);
-                    }
+                    Log.d(TAG, "onScrollStateChanged: centerPosition " + centerPosition);
+                    adapter2.setCurrentPosition(centerPosition);
+                    mInScroll = true;
                 }
             }
 
@@ -104,10 +118,13 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 if (dx > 0) {
+                    // 向右滑动
                     scrollDirection = DIR_RIGHT;
                 } else if (dx < 0) {
+                    // 向左滑动
                     scrollDirection = DIR_LEFT;
                 } else {
+                    // 无水平滑动
                     scrollDirection = 0;
                 }
             }
@@ -136,9 +153,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        int centerPosition = findCenterPosition(layoutManager);
-        if (centerPosition != RecyclerView.NO_POSITION && centerPosition != adapter2.getCurrentPosition()) {
-            adapter2.setCurrentPosition(centerPosition);
+
+        // int centerPosition = findCenterPosition(layoutManager);
+        // if (centerPosition != RecyclerView.NO_POSITION && centerPosition != adapter2.getCurrentPosition()) {
+        //     adapter2.setCurrentPosition(centerPosition);
+        // }
+
+        if (!mViewInit) {
+            rv.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // 手动对齐
+                    int centerPosition = findCenterPosition(layoutManager);
+                    Log.d(TAG, "findCenterPosition: " + centerPosition);
+                    adapter2.setCurrentPosition(adapter2.getCurrentPosition() + 1);
+                    rv.smoothScrollToPosition(adapter2.getCurrentPosition() + 1);
+                    mViewInit = true;
+                }
+            }, 100);
         }
 
     }
