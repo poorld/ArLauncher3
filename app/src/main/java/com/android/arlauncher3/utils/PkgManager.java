@@ -1,4 +1,4 @@
-package com.android.arlauncher3;
+package com.android.arlauncher3.utils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,12 +11,11 @@ import android.util.ArraySet;
 import android.util.Log;
 
 
+import com.android.arlauncher3.bean.ItemAppEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PkgManager {
@@ -62,6 +61,7 @@ public class PkgManager {
             String appName = resolveInfo.loadLabel(context.getPackageManager()).toString();
             Drawable drawable = resolveInfo.loadIcon(context.getPackageManager());
             boolean isSystemApp = (resolveInfo.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+            Log.d("yuy", "packageName: " + packageName);
 
             // test
             //if ("com.tencent.mm".equals(packageName)) {

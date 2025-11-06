@@ -1,4 +1,4 @@
-package com.android.arlauncher3;
+package com.android.arlauncher3.adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -11,6 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+import com.android.arlauncher3.R;
+import com.android.arlauncher3.bean.AppBean;
 
 import java.util.ArrayList;
 import java.util.List;

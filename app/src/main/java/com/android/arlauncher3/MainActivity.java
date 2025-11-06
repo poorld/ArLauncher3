@@ -6,34 +6,44 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import com.android.arlauncher3.adapter.ARRecyclerAdapter2;
+import com.android.arlauncher3.bean.ItemAppEntity;
+import com.android.arlauncher3.model.StatusType;
+import com.android.arlauncher3.presenter.StatusManager;
+import com.android.arlauncher3.utils.PkgManager;
+import com.android.arlauncher3.view.BatteryBinder;
+import com.android.arlauncher3.view.NetworkBinder;
+import com.android.arlauncher3.view.TimeBinder;
+import com.android.arlauncher3.view.WifiBinder;
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
 
-    RecyclerView rv;
+    private RecyclerView rv;
     // private ARRecyclerAdapter adapter;
     private ARRecyclerAdapter2 adapter2;
     public static final int DIR_LEFT = 1;
     public static final int DIR_RIGHT = 2;
     private int scrollDirection = -1;
-    private boolean mInScroll = false;
     private LinearLayoutManager layoutManager;
 
     private Handler mH = new Handler(Looper.getMainLooper());
+    private TextView mTvTime;
+    private ImageView mIvWifi;
+    private ImageView mIvNetwork;
+    private ImageView mIvBattery;
 
-    private boolean mViewInit = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +51,13 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        initViews();
+        setViewBinder();
+
+    }
+
+
+    private void initViews() {
         rv = findViewById(R.id.rv);
 
         // adapter = new ARRecyclerAdapter(this);
@@ -58,25 +75,28 @@ public class MainActivity extends AppCompatActivity {
 
         // adapter2.setCurrentPosition(1000/2);
         // 设置循环桌面
-        rv.scrollToPosition((1000/2) + 1);
+        rv.scrollToPosition((100 / 2) + 1);
+
+        rv.post(new Runnable() {
+            @Override
+            public void run() {
+                int centerPosition = findCenterPosition(layoutManager);
+                if (centerPosition != RecyclerView.NO_POSITION) {
+                    adapter2.setCurrentPosition(centerPosition);
+                }
+            }
+        });
 
         rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    // 滑动开始时重置 mInScroll
-                    mInScroll = false;
-                    Log.d(TAG, "onScrollStateChanged: SCROLL_STATE_DRAGGING");
-                } else if (newState == RecyclerView.SCROLL_STATE_IDLE && !mInScroll) {
-                    int currentPosition = adapter2.getCurrentPosition();
-                    int newPosition = scrollDirection == DIR_RIGHT ? currentPosition + 1 : currentPosition - 1;
-                    Log.d(TAG, "onScrollStateChanged: currentPosition " + currentPosition);
-                    Log.d(TAG, "onScrollStateChanged: newPosition " + newPosition);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     int centerPosition = findCenterPosition(layoutManager);
-                    Log.d(TAG, "onScrollStateChanged: centerPosition " + centerPosition);
-                    adapter2.setCurrentPosition(centerPosition);
-                    mInScroll = true;
+                    if (centerPosition != RecyclerView.NO_POSITION) {
+                        Log.d(TAG, "onScrollStateChanged: centerPosition " + centerPosition);
+                        adapter2.setCurrentPosition(centerPosition);
+                    }
                 }
             }
 
@@ -84,47 +104,42 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 if (dx > 0) {
-                    // 向右滑动
                     scrollDirection = DIR_RIGHT;
                 } else if (dx < 0) {
-                    // 向左滑动
                     scrollDirection = DIR_LEFT;
                 } else {
-                    // 无水平滑动
                     scrollDirection = 0;
                 }
             }
         });
 
 
+        mTvTime = findViewById(R.id.tv_time);
+        mIvWifi = findViewById(R.id.iv_wifi);
+        mIvNetwork = findViewById(R.id.iv_network);
+        mIvBattery = findViewById(R.id.iv_battery);
+
     }
+
+    private void setViewBinder() {
+        StatusManager statusManager = StatusManager.getInstance();
+        statusManager.registerView(new TimeBinder(mTvTime), StatusType.TIME);
+        statusManager.registerView(new WifiBinder(mIvWifi), StatusType.WIFI);
+        statusManager.registerView(new NetworkBinder(mIvNetwork), StatusType._4G);
+        statusManager.registerView(new BatteryBinder(mIvBattery), StatusType.BATTERY);
+
+        StatusManager.getInstance().startAllProviders();
+
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mViewInit) {
-            rv.post(new Runnable() {
-                @Override
-                public void run() {
-                    rv.addItemDecoration(new ThreeItemsDecoration(MainActivity.this));
-                    int centerPosition = findCenterPosition(layoutManager);
-                    Log.d(TAG, "findCenterPosition: " + centerPosition);
-                    adapter2.setCurrentPosition(centerPosition);
-                    mViewInit = true;
-
-                }
-            });
+        int centerPosition = findCenterPosition(layoutManager);
+        if (centerPosition != RecyclerView.NO_POSITION && centerPosition != adapter2.getCurrentPosition()) {
+            adapter2.setCurrentPosition(centerPosition);
         }
-        if (mViewInit) {
-            int centerPosition = findCenterPosition(layoutManager);
-            int currentPosition = adapter2.getCurrentPosition();
-            Log.d(TAG, "onResume: centerPosition " + centerPosition);
-            Log.d(TAG, "onResume: currentPosition " + currentPosition);
-            if (centerPosition != currentPosition) {
-                adapter2.setCurrentPosition(centerPosition);
-            }
-        }
-
 
     }
 
@@ -177,7 +192,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        long eventTime = event.getEventTime();
 
 
         Log.d(TAG, "dispatchKeyEvent: " + event);
@@ -199,11 +213,11 @@ public class MainActivity extends AppCompatActivity {
             return true;
             // 左滑
         } else if (event.getKeyCode() == KeyEvent.KEYCODE_F5 && event.getAction() == KeyEvent.ACTION_DOWN) {
-            adapter2.setCurrentPosition(adapter2.getCurrentPosition() -1);
-            rv.smoothScrollToPosition(adapter2.getCurrentPosition() -1);
+            adapter2.setCurrentPosition(adapter2.getCurrentPosition() - 1);
+            rv.smoothScrollToPosition(adapter2.getCurrentPosition() - 1);
         } else if (event.getKeyCode() == KeyEvent.KEYCODE_F6 && event.getAction() == KeyEvent.ACTION_DOWN) {
             // 右滑
-            adapter2.setCurrentPosition(adapter2.getCurrentPosition()  + 1);
+            adapter2.setCurrentPosition(adapter2.getCurrentPosition() + 1);
             rv.smoothScrollToPosition(adapter2.getCurrentPosition() + 1);
 
             // 单点

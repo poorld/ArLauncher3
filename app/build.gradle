@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.android.arlauncher3"
-        minSdk 29
+        minSdk 31
         targetSdk 35
         versionCode 1
         versionName "1.0"
@@ -25,6 +25,15 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('platform.jks')
+            storePassword 'luhongda1234'
+            keyAlias 'luhongda'
+            keyPassword 'luhongda1234'
+        }
     }
 }
 

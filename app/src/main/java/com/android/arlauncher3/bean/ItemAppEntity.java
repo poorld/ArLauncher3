@@ -1,4 +1,4 @@
-package com.android.arlauncher3;
+package com.android.arlauncher3.bean;
 
 import android.graphics.drawable.Drawable;
 

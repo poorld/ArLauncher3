@@ -1,20 +1,25 @@
-package com.android.arlauncher3;
+package com.android.arlauncher3.adapter;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ThreeItemsDecoration extends RecyclerView.ItemDecoration {
+
+    private String TAG = "ThreeItemsDecoration";
     private final int spacing; // 条目间距
     private final int sideMargin; // 两侧边距
 
-    ThreeItemsDecoration(Context context) {
+    public ThreeItemsDecoration(Context context) {
         // 计算间距，假设屏幕宽度显示三个条目
         int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
         spacing = dpToPx(context, 30); // 条目间距 8dp
         sideMargin = (screenWidth - 3 * dpToPx(context, 200) - 2 * spacing) / 2; // 每项200dp，动态计算边距
+        Log.d(TAG, "spacing: " + spacing);
+        Log.d(TAG, "sideMargin: " + sideMargin);
     }
 
     @Override

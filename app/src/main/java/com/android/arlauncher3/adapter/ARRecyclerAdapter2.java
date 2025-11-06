@@ -1,4 +1,4 @@
-package com.android.arlauncher3;
+package com.android.arlauncher3.adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -11,6 +11,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.arlauncher3.bean.ItemAppEntity;
+import com.android.arlauncher3.utils.PkgManager;
+import com.android.arlauncher3.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +110,7 @@ public class ARRecyclerAdapter2 extends RecyclerView.Adapter<ARRecyclerAdapter2.
             // 当前选中的图标
             // holder.appIcon.setScaleX(1.5f);
             // holder.appIcon.setScaleY(1.5f);
-            holder.container.setLayoutParams(new LinearLayout.LayoutParams(130, 130));
+            holder.container.setLayoutParams(new LinearLayout.LayoutParams(100, 100));
             holder.appName.setVisibility(View.VISIBLE);
             holder.itemView.setSelected(true);
         } else {
@@ -129,7 +133,7 @@ public class ARRecyclerAdapter2 extends RecyclerView.Adapter<ARRecyclerAdapter2.
     @Override
     public int getItemCount() {
         // return appList.size();
-        return 1000;
+        return 100;
     }
 
     public int getCurrentPosition() {
