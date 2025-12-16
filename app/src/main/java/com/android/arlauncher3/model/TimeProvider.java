@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class TimeProvider implements IStatusProvider {
 
@@ -50,6 +51,7 @@ public class TimeProvider implements IStatusProvider {
     }
 
     private void updateTime() {
+        sdf.setTimeZone(TimeZone.getDefault());
         String time = sdf.format(new Date());
         if (!mLastTime.equals(time)) {
             mLastTime = time;

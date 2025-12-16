@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-
+        // 单点F3 双击F4
 
         Log.d(TAG, "dispatchKeyEvent: " + event);
         // ok
@@ -253,16 +253,16 @@ public class MainActivity extends AppCompatActivity {
             rv.smoothScrollToPosition(adapter2.getCurrentPosition() + 1);
 
             // 单点
-        } else if (event.getKeyCode() == KeyEvent.KEYCODE_F7 && event.getAction() == KeyEvent.ACTION_DOWN) {
-            ItemAppEntity currentApp = adapter2.getCurrentApp();
-            Log.d(TAG, "startAct " + currentApp.getPackageName());
-            PkgManager.startAct(this, currentApp.getPackageName());
-            mH.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    rv.scrollToPosition(adapter2.getCurrentPosition() + 1);
-                }
-            }, 200);
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_F3 && event.getAction() == KeyEvent.ACTION_DOWN) {
+            // ItemAppEntity currentApp = adapter2.getCurrentApp();
+            // Log.d(TAG, "startAct " + currentApp.getPackageName());
+            // PkgManager.startAct(this, currentApp.getPackageName());
+            // mH.postDelayed(new Runnable() {
+            //     @Override
+            //     public void run() {
+            //         rv.scrollToPosition(adapter2.getCurrentPosition() + 1);
+            //     }
+            // }, 200);
             return true;
         }
         return super.dispatchKeyEvent(event);
